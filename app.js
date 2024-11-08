@@ -1,54 +1,93 @@
-// Select DOM elements
-const input = document.getElementById('todo-input')
-const addButton = document.getElementById('add-todo-btn')
-const todoList = document.getElementById('todo-list')
+const input = document.getElementById('task-input')
+const addTaskBtn = document.getElementById('add-task-btn')
+const taskList = document.getElementById('task-list')
 
-// Array to store to-do items
-let todos = []
+let tasks = JSON.parse(localStorage.getItem('tasks')) || [] // Retrieve saved tasks or initialize empty
 
-// Function to add a new to-do item
-function addTodo() {
-  const todoText = input.value.trim() // Get input value and trim whitespace
+function saveTasks() {
+  localStorage.setItem('tasks', JSON.stringify(tasks))
+}
 
-  if (todoText) {
-    // Add to-do item to the array
-    todos.push(todoText)
+// 1. Add Task
+function addTask() {
+  const taskText = input.value.trim()
 
-    // Clear the input field
-    input.value = ''
+  if (!taskText) {
+    alert('Task cannot be empty')
+    return
+  }
 
-    // Update the displayed to-do list
-    renderTodos()
-  } else {
-    alert('Please enter a to-do item!')
+  const newTask = {
+    id: Date.now(), // Unique ID
+    text: taskText,
+    completed: false,
+  }
+
+  tasks.push(newTask)
+  input.value = '' // Clear input
+  saveTasks()
+  renderTasks()
+}
+
+// 2. Render Tasks
+function renderTasks(filter = 'all') {
+  taskList.innerHTML = ''
+
+  const filteredTasks = tasks.filter((task) => {
+    if (filter === 'completed') return task.completed
+    if (filter === 'incomplete') return !task.completed
+    return true // Default to showing all
+  })
+
+  filteredTasks.forEach((task) => {
+    const li = document.createElement('li')
+    li.className = 'flex justify-between p-2 border-b'
+    li.innerHTML = `
+            <span class="${
+              task.completed ? 'line-through text-gray-500' : ''
+            }">${task.text}</span>
+            <div>
+                <button onclick="toggleTask(${
+                  task.id
+                })" class="text-green-500 mr-2">Complete</button>
+                <button onclick="deleteTask(${
+                  task.id
+                })" class="text-red-500">Delete</button>
+            </div>
+        `
+    taskList.appendChild(li)
+  })
+}
+// 3. Toggle Task Completion
+function toggleTask(id) {
+  const taskIndex = tasks.findIndex((task) => task.id === id)
+
+  if (taskIndex > -1) {
+    tasks[taskIndex] = {
+      ...tasks[taskIndex],
+      completed: !tasks[taskIndex].completed,
+    }
+    saveTasks()
+    renderTasks()
   }
 }
 
-// Function to display the to-do list
-function renderTodos() {
-  // Clear existing list items
-  todoList.innerHTML = ''
-
-  // Loop through todos array and create list items
-  todos.forEach((todo, index) => {
-    const li = document.createElement('li')
-    li.textContent = todo
-
-    // Add a remove button to each item
-    const removeButton = document.createElement('button')
-    removeButton.textContent = 'Remove'
-    removeButton.onclick = () => removeTodo(index)
-
-    li.appendChild(removeButton)
-    todoList.appendChild(li)
-  })
+// 4. Delete Task
+function deleteTask(id) {
+  tasks = tasks.filter((task) => task.id !== id)
+  saveTasks()
+  renderTasks()
 }
+document
+  .getElementById('show-all')
+  .addEventListener('click', () => renderTasks('all'))
+document
+  .getElementById('show-completed')
+  .addEventListener('click', () => renderTasks('completed'))
+document
+  .getElementById('show-incomplete')
+  .addEventListener('click', () => renderTasks('incomplete'))
+addTaskBtn.addEventListener('click', addTask)
 
-// Function to remove a to-do item
-function removeTodo(index) {
-  todos.splice(index, 1) // Remove item from the array
-  renderTodos() // Re-render the to-do list
-}
-
-// Add event listener to the button
-addButton.addEventListener('click', addTodo)
+// Render tasks on initial load
+renderTasks()

@@ -4,16 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JavaScript To-Do List</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Task Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 
-<body>
-    <h1>To-Do List</h1>
-    <div id="app">
-        <input type="text" id="todo-input" placeholder="Add a new to-do" />
-        <button id="add-todo-btn">Add</button>
-        <ul id="todo-list"></ul>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center py-10">
+    <h1 class="text-3xl font-bold text-blue-600 mb-6">Task Manager</h1>
+    <div id="task-manager" class="bg-white shadow-lg p-6 rounded-lg w-full max-w-md">
+        <input type="text" id="task-input" class="border p-2 w-full mb-4" placeholder="Enter a new task" />
+        <button id="add-task-btn" class="bg-blue-500 text-white py-2 px-4 rounded w-full">Add Task</button>
+        <div id="task-filters" class="flex justify-around mt-4">
+            <button id="show-all" class="text-blue-500">All</button>
+            <button id="show-completed" class="text-green-500">Completed</button>
+            <button id="show-incomplete" class="text-red-500">Incomplete</button>
+        </div>
+        <ul id="task-list" class="mt-4"></ul>
     </div>
     <script src="app.js"></script>
 </body>
